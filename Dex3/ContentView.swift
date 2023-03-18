@@ -17,18 +17,39 @@ struct ContentView: View {
     private var pokedex: FetchedResults<Pokemon>
 
     var body: some View {
-        NavigationView {
-            List {
-                ForEach(pokedex) { pokemon in
-                    NavigationLink {
-                        //exclamation mark means force unwrap the optional
-                        Text("\(pokemon.id): \(pokemon.name!.capitalized)")
-                    } label: {
-                        Text("\(pokemon.id): \(pokemon.name!.capitalized)")
+        
+        //Navigation view has been deprecated in iOS 16 so now we have to use a NavigationStack
+        NavigationStack {
+            List(pokedex) { pokemon in
+                NavigationLink(value: pokemon) {
+                    //exclamation mark means force unwrap the optional
+                    //Basically says "we know it has a value so go get it
+                    AsyncImage(url:pokemon.sprite){ image in
+                        image.resizable().scaledToFit()
+                        
+                    } placeholder: { //no effing clue what this is
+                        ProgressView()
                     }
+                    .frame(width: 100,height: 100) // don't love hardcoding dimensions
+                    
+                    
+                    Text(pokemon.name!.capitalized)
                 }
-                
             }
+                
+            .navigationTitle("Pokedex")
+            .navigationDestination(for: Pokemon.self, destination: { pokemon in
+                //This lets us clock on the link and we can see the little picture
+                
+                AsyncImage(url:pokemon.sprite){ image in
+                    image.resizable().scaledToFit()
+                    
+                } placeholder: { //no effing clue what this is
+                    ProgressView()
+                }
+                .frame(width: 100,height: 100) // don't love hardcoding dimensions
+
+            })
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     EditButton()
